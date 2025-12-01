@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physique Check - Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: black;
+            color: white;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+
+    <div class="flex min-h-screen">
+        <!-- Left Side: Form -->
+        <div class="w-full md:w-1/2 flex flex-col justify-center p-8 md:p-12 lg:p-16 relative z-10">
+             
+             <!-- Back Button -->
+             <a href="landingpage.html" class="absolute top-6 left-6 md:top-8 md:left-8 text-gray-500 hover:text-white transition-colors flex items-center gap-2 z-20">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                <span class="font-medium">Back</span>
+             </a>
+
+             <!-- Mobile Background Elements -->
+             <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 md:hidden pointer-events-none">
+                <div class="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-green-500/10 rounded-full blur-[80px]"></div>
+            </div>
+
+            <div class="w-full max-w-md mx-auto mt-12 md:mt-0">
+                <a href="landingpage.html" class="flex items-center gap-2 mb-10 group w-fit">
+                    <svg class="w-8 h-8 text-white group-hover:text-green-400 transition-colors" viewBox="0 0 100 100" fill="none"><path d="M50 10 C 70 10, 85 25, 85 45 C 85 70, 65 90, 50 90 C 35 90, 15 70, 15 45 C 15 25, 30 10, 50 10 Z" stroke="currentColor" stroke-width="5" /><path d="M35 50 L48 63 L65 40" stroke="#31FF75" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    <span class="font-bold text-lg group-hover:text-green-400 transition-colors">Physique Check</span>
+                </a>
+
+                <div class="mb-8">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-2">Create Account</h2>
+                    <p class="text-gray-400">Start your fitness journey today.</p>
+                </div>
+
+                <!-- NOTE: action + method go to PHP backend -->
+                <form id="signup-form" class="space-y-5" action="signup_process.php" method="post">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Full Name</label>
+                        <input type="text" id="fullname" name="fullname" required placeholder="John Doe" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3.5 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all placeholder-gray-600 hover:border-gray-600">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Username</label>
+                            <input type="text" id="username" name="username" required placeholder="@johnfit" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3.5 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all placeholder-gray-600 hover:border-gray-600">
+                        </div>
+                         <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Age</label>
+                            <input type="number" id="age" name="age" required placeholder="25" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3.5 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all placeholder-gray-600 hover:border-gray-600">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Gender</label>
+                            <div class="relative">
+                                <select id="gender" name="gender" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3.5 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all appearance-none hover:border-gray-600">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                         <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1.5">Goal</label>
+                            <div class="relative">
+                                <select id="goal" name="goal" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3.5 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all appearance-none hover:border-gray-600">
+                                    <option value="muscle gain">Muscle Gain</option>
+                                    <option value="fat loss">Fat Loss</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Email Address</label>
+                        <input type="email" id="email" name="email" required placeholder="john@example.com" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3.5 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all placeholder-gray-600 hover:border-gray-600">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" required placeholder="••••••••" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3.5 pr-12 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all placeholder-gray-600 hover:border-gray-600">
+                             <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-white transition-colors focus:outline-none">
+                                <!-- Eye Icon (Show) -->
+                                <svg id="eye-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 hidden">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <!-- Eye Slash Icon (Hide) -->
+                                <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password field with show/hide -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1.5">Confirm Password</label>
+                        <div class="relative">
+                            <input type="password" id="confirm-password" name="confirm_password" required placeholder="••••••••" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3.5 pr-12 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all placeholder-gray-600 hover:border-gray-600">
+                            <button type="button" id="toggle-confirm-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-white transition-colors focus:outline-none">
+                                <!-- Eye Icon (Show) -->
+                                <svg id="confirm-eye-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 hidden">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <!-- Eye Slash Icon (Hide) -->
+                                <svg id="confirm-eye-closed" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-green-500 text-black font-bold py-4 rounded-lg hover:bg-green-400 transition-all transform active:scale-[0.98] shadow-[0_0_20px_rgba(49,255,117,0.3)] hover:shadow-[0_0_30px_rgba(49,255,117,0.5)]">
+                            Create Account
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-8">
+                    <p class="text-gray-400 text-sm">Already have an account? <a href="login.html" class="text-green-400 hover:text-green-300 font-semibold transition-colors">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Visual -->
+        <div class="hidden md:block md:w-1/2 relative bg-gray-900 sticky top-0 h-screen">
+            <div class="absolute inset-0 overflow-hidden">
+                 <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80" alt="Fitness Background" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay">
+                 <div class="absolute inset-0 bg-gradient-to-br from-black/80 via-black/40 to-green-900/40"></div>
+                 
+                 <!-- Decorative Blobs -->
+                 <div class="absolute top-1/4 right-1/4 w-96 h-96 bg-green-500/20 rounded-full blur-[100px] animate-pulse"></div>
+                 <div class="absolute bottom-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px]"></div>
+            </div>
+            
+            <div class="relative z-10 h-full flex flex-col justify-start p-16 pt-32">
+                 <div class="mb-4">
+                     <svg class="w-16 h-16 text-green-500 mb-6 drop-shadow-[0_0_15px_rgba(49,255,117,0.5)]" viewBox="0 0 100 100" fill="none"><path d="M50 10 C 70 10, 85 25, 85 45 C 85 70, 65 90, 50 90 C 35 90, 15 70, 15 45 C 15 25, 30 10, 50 10 Z" stroke="currentColor" stroke-width="5" /><path d="M35 50 L48 63 L65 40" stroke="#31FF75" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                     <h2 class="text-5xl font-bold leading-tight mb-4">Build Your <br/><span class="text-green-400">Dream Physique</span></h2>
+                     <p class="text-xl text-gray-300 max-w-md">Join thousands of users getting personalized AI-driven workout and meal plans.</p>
+                 </div>
+                 
+                 <!-- Stats -->
+                 <div class="flex gap-10 mt-8 pt-8 border-t border-gray-700/50">
+                     <div>
+                         <p class="text-3xl font-bold text-white">10k+</p>
+                         <p class="text-sm text-gray-400 uppercase tracking-wider mt-1">Active Users</p>
+                     </div>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASSWORD MISMATCH ERROR MODAL -->
+    <div id="password-error-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm px-4 flex items-center justify-center">
+        <div class="bg-gray-900 border border-red-500/60 p-6 rounded-2xl max-w-sm w-full shadow-2xl">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/40 flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4.5m0 3.75h.007M10.29 3.86L3.18 18a1.125 1.125 0 001.01 1.62h15.62a1.125 1.125 0 001.01-1.62L13.71 3.86a1.125 1.125 0 00-1.98 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold mb-1">Passwords do not match</h3>
+                <p class="text-sm text-gray-400 mb-5">Please make sure your password and confirm password are exactly the same.</p>
+                <button id="password-error-close" class="px-5 py-2.5 rounded-lg bg-red-500 text-black font-semibold hover:bg-red-400 transition-colors w-full">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMAIL VERIFICATION MODAL -->
+    <div id="verification-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden backdrop-blur-sm px-4">
+        <div class="bg-gray-900 border border-gray-700 p-8 rounded-2xl max-w-md w-full shadow-2xl relative animate-fadeIn">
+            <div class="text-center mb-6">
+                 <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-green-500">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                 </div>
+                 <h3 class="text-2xl font-bold mb-2">Verify your email</h3>
+                 <p class="text-gray-400 text-sm">We've sent a 6-digit verification code to <br/><span id="verify-email-display" class="text-white font-medium"></span></p>
+            </div>
+            
+            <div class="flex justify-center gap-2 mb-8" id="otp-inputs">
+                <input type="text" maxlength="1" class="w-12 h-14 bg-gray-800 border border-gray-700 rounded-lg text-center text-xl font-bold text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all" />
+                <input type="text" maxlength="1" class="w-12 h-14 bg-gray-800 border border-gray-700 rounded-lg text-center text-xl font-bold text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all" />
+                <input type="text" maxlength="1" class="w-12 h-14 bg-gray-800 border border-gray-700 rounded-lg text-center text-xl font-bold text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all" />
+                <input type="text" maxlength="1" class="w-12 h-14 bg-gray-800 border border-gray-700 rounded-lg text-center text-xl font-bold text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all" />
+                <input type="text" maxlength="1" class="w-12 h-14 bg-gray-800 border border-gray-700 rounded-lg text-center text-xl font-bold text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all" />
+                <input type="text" maxlength="1" class="w-12 h-14 bg-gray-800 border border-gray-700 rounded-lg text-center text-xl font-bold text-white focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all" />
+            </div>
+
+            <button id="verify-btn" class="w-full bg-green-500 text-black font-bold py-3.5 rounded-lg hover:bg-green-400 transition-colors shadow-lg shadow-green-500/20">Verify Code & Continue</button>
+            
+            <button id="cancel-verification" class="w-full mt-4 text-gray-400 hover:text-white text-sm font-medium transition-colors py-2">Cancel & Return to Signup</button>
+        </div>
+    </div>
+
+    <script>
+        // Password Visibility Logic
+        const togglePassword = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('password');
+        const eyeOpen = document.getElementById('eye-open');
+        const eyeClosed = document.getElementById('eye-closed');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            if (type === 'text') {
+                eyeOpen.classList.remove('hidden');
+                eyeClosed.classList.add('hidden');
+            } else {
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+            }
+        });
+
+        // Confirm Password Visibility Logic
+        const toggleConfirmPassword = document.getElementById('toggle-confirm-password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const confirmEyeOpen = document.getElementById('confirm-eye-open');
+        const confirmEyeClosed = document.getElementById('confirm-eye-closed');
+
+        toggleConfirmPassword.addEventListener('click', function() {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            if (type === 'text') {
+                confirmEyeOpen.classList.remove('hidden');
+                confirmEyeClosed.classList.add('hidden');
+            } else {
+                confirmEyeOpen.classList.add('hidden');
+                confirmEyeClosed.classList.remove('hidden');
+            }
+        });
+
+        // Password mismatch modal logic
+        const signupForm = document.getElementById('signup-form');
+        const passwordErrorModal = document.getElementById('password-error-modal');
+        const passwordErrorClose = document.getElementById('password-error-close');
+
+        signupForm.addEventListener('submit', function(e) {
+            const pwd = passwordInput.value;
+            const cpwd = confirmPasswordInput.value;
+
+            if (pwd !== cpwd) {
+                e.preventDefault();
+                passwordErrorModal.classList.remove('hidden');
+            }
+        });
+
+        passwordErrorClose.addEventListener('click', function() {
+            passwordErrorModal.classList.add('hidden');
+        });
+
+        // Verification Modal Logic (kept as-is, still disabled for submit)
+        const modal = document.getElementById('verification-modal');
+        const cancelBtn = document.getElementById('cancel-verification');
+        const verifyBtn = document.getElementById('verify-btn');
+        const emailDisplay = document.getElementById('verify-email-display');
+        const otpInputs = document.querySelectorAll('#otp-inputs input');
+
+        /* 
+        // Signup Form Submission - Show Modal (DISABLED so form can submit to PHP)
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            emailDisplay.innerText = email;
+            modal.classList.remove('hidden');
+            otpInputs[0].focus();
+        });
+        */
+
+        // Cancel - Hide Modal
+        cancelBtn.addEventListener('click', function() {
+            modal.classList.add('hidden');
+        });
+
+        // Auto-focus next input for OTP
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('keyup', (e) => {
+                if(e.key === "Backspace" && index > 0 && input.value === "") {
+                    otpInputs[index - 1].focus();
+                }
+            });
+            input.addEventListener('input', () => {
+                if (input.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+        });
+
+        /*
+        // Verify & Login (DISABLED – real verification happens in verify_email.php)
+        verifyBtn.addEventListener('click', function() {
+            // Check if code entered (simplified for demo)
+            let code = "";
+            otpInputs.forEach(input => code += input.value);
+            
+            if(code.length === 6) {
+                // Proceed with registration logic
+                const userData = {
+                    firstName: document.getElementById('fullname').value.split(' ')[0] || 'User',
+                    lastName: document.getElementById('fullname').value.split(' ').slice(1).join(' ') || '',
+                    username: document.getElementById('username').value,
+                    email: document.getElementById('email').value,
+                    age: document.getElementById('age').value,
+                    gender: document.getElementById('gender').value,
+                    avatar: 'https://via.placeholder.com/150'
+                };
+                
+                const userPrefs = {
+                    goal: document.getElementById('goal').value,
+                    experience: 'beginner',
+                    equipment: 'gym',
+                    time: '45-60 min',
+                    sex: document.getElementById('gender').value,
+                    age: document.getElementById('age').value
+                };
+
+                localStorage.setItem('physique_user_profile', JSON.stringify(userData));
+                localStorage.setItem('physique_preferences', JSON.stringify(userPrefs));
+                localStorage.setItem('physique_app_state', 'dashboard');
+                
+                window.location.href = 'home.html';
+            } else {
+                alert("Please enter the 6-digit verification code sent to your email.");
+            }
+        });
+        */
+    </script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physique Check - Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: black;
+            color: white;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Scrollbar Customization */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000000; 
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333333; 
+            border-radius: 5px;
+            border: 2px solid #000000; /* Creates a padding effect */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #31FF75; /* Brand Accent Color */
+        }
+
+        /* Utility to hide scrollbar for carousels but keep functionality */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* --- 3D Carousel Styles --- */
+        input[type=radio] {
+            display: none;
+        }
+
+        .carousel-container {
+            width: 100%;
+            max-width: 900px;
+            height: 500px;
+            transform-style: preserve-3d;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .carousel-cards {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            perspective: 1000px;
+        }
+
+        .carousel-card {
+            position: absolute;
+            width: 60%; /* Mobile default */
+            height: 100%;
+            left: 0;
+            right: 0;
+            margin: auto;
+            transition: transform 0.5s ease, opacity 0.5s ease, z-index 0s;
+            cursor: pointer;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (min-width: 768px) {
+            .carousel-card {
+                width: 50%;
+            }
+        }
+
+        .carousel-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        /* Caption Overlay (Hover Effect) */
+        .card-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0));
+            transform: translateY(100%); /* Hidden by default */
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+        }
+
+        .carousel-card:hover .card-caption {
+            transform: translateY(0); /* Show on hover */
+            opacity: 1;
+        }
+
+        /* Zoom image on hover */
+        .carousel-card:hover img {
+            transform: scale(1.1);
+        }
+
+
+        /* --- Carousel Logic for 5 Items --- */
+
+        /* CENTER */
+        #item-1:checked ~ .carousel-cards #card-1,
+        #item-2:checked ~ .carousel-cards #card-2,
+        #item-3:checked ~ .carousel-cards #card-3,
+        #item-4:checked ~ .carousel-cards #card-4,
+        #item-5:checked ~ .carousel-cards #card-5 {
+            transform: translatex(0) scale(1);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        /* IMMEDIATE RIGHT (Next) */
+        #item-1:checked ~ .carousel-cards #card-2,
+        #item-2:checked ~ .carousel-cards #card-3,
+        #item-3:checked ~ .carousel-cards #card-4,
+        #item-4:checked ~ .carousel-cards #card-5,
+        #item-5:checked ~ .carousel-cards #card-1 {
+            transform: translatex(40%) scale(0.8);
+            opacity: 0.6;
+            z-index: 5;
+        }
+
+        /* IMMEDIATE LEFT (Prev) */
+        #item-1:checked ~ .carousel-cards #card-5,
+        #item-2:checked ~ .carousel-cards #card-1,
+        #item-3:checked ~ .carousel-cards #card-2,
+        #item-4:checked ~ .carousel-cards #card-3,
+        #item-5:checked ~ .carousel-cards #card-4 {
+            transform: translatex(-40%) scale(0.8);
+            opacity: 0.6;
+            z-index: 5;
+        }
+
+        /* FAR RIGHT (Next + 1) */
+        #item-1:checked ~ .carousel-cards #card-3,
+        #item-2:checked ~ .carousel-cards #card-4,
+        #item-3:checked ~ .carousel-cards #card-5,
+        #item-4:checked ~ .carousel-cards #card-1,
+        #item-5:checked ~ .carousel-cards #card-2 {
+            transform: translatex(75%) scale(0.6);
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        /* FAR LEFT (Prev - 1) */
+        #item-1:checked ~ .carousel-cards #card-4,
+        #item-2:checked ~ .carousel-cards #card-5,
+        #item-3:checked ~ .carousel-cards #card-1,
+        #item-4:checked ~ .carousel-cards #card-2,
+        #item-5:checked ~ .carousel-cards #card-3 {
+            transform: translatex(-75%) scale(0.6);
+            opacity: 0.3;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 bg-black/50 backdrop-blur-sm z-50 border-b border-gray-800">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <svg class="w-10 h-10 text-white" viewBox="0 0 100 100" fill="none"><path d="M50 10 C 70 10, 85 25, 85 45 C 85 70, 65 90, 50 90 C 35 90, 15 70, 15 45 C 15 25, 30 10, 50 10 Z" stroke="currentColor" stroke-width="5" /><path d="M35 50 L48 63 L65 40" stroke="#31FF75" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <h1 class="text-2xl font-bold tracking-tight">Physique Check</h1>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <a href="login.html" class="text-gray-300 hover:text-white font-medium transition-colors">Login</a>
+                <a href="signup.html" class="bg-green-500 text-black font-bold px-5 py-2 rounded-lg hover:bg-green-400 transition-all hover:scale-105">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- LANDING CONTENT -->
+    <div class="min-h-screen flex flex-col pt-24">
+        <main class="flex-grow container mx-auto px-6 text-center flex flex-col items-center justify-center">
+            <h2 class="text-4xl md:text-6xl font-bold tracking-tight mb-4 max-w-4xl leading-tight">
+                See Your Physique Clearly.
+                <br />
+                <span style="color: #31FF75">Improve With A Plan That Fits You.</span>
+            </h2>
+            <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+                Upload a simple photo get instant muscle analysis, clear workout plans, and easy meal guides shaped around your body and your goals.
+            </p>
+            <a href="signup.html" class="bg-green-500 text-black font-bold text-lg px-8 py-4 rounded-lg hover:bg-green-400 transition-all transform hover:scale-105 inline-block shadow-lg shadow-green-500/20">
+                Get Started Free &rarr;
+            </a>
+            
+            <!-- 3D CAROUSEL SECTION -->
+            <section class="mt-24 w-full max-w-[1200px] px-4 pb-12">
+                <div class="mb-8 text-center">
+                    <p class="text-green-400 font-bold tracking-widest text-sm mb-2">THE PLATFORM</p>
+                    <h3 class="text-3xl font-bold">Everything You Need</h3>
+                </div>
+
+                <div class="carousel-container">
+                    <!-- Radio Inputs for Logic -->
+                    <input type="radio" name="slider" id="item-1" checked>
+                    <input type="radio" name="slider" id="item-2">
+                    <input type="radio" name="slider" id="item-3">
+                    <input type="radio" name="slider" id="item-4">
+                    <input type="radio" name="slider" id="item-5">
+                    
+                    <div class="carousel-cards">
+                        
+                        <!-- Card 1: AI Analysis -->
+                        <label class="carousel-card" for="item-1" id="card-1">
+                            <img src="https://images.unsplash.com/photo-1550345332-09e3ac987658?auto=format&fit=crop&w=1200&q=80" alt="AI Analysis">
+                            <div class="card-caption">
+                                <span class="bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wider mb-2 inline-block">AI TECHNOLOGY</span>
+                                <h4 class="text-2xl font-bold text-white mb-2">Precision Analysis</h4>
+                                <p class="text-gray-300 text-sm">
+                                    Advanced computer vision breaks down your physique symmetry, identifying strong points and areas for growth instantly.
+                                </p>
+                            </div>
+                        </label>
+                        
+                        <!-- Card 2: Training -->
+                        <label class="carousel-card" for="item-2" id="card-2">
+                            <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80" alt="Training">
+                             <div class="card-caption">
+                                <span class="bg-green-500 text-black text-[10px] font-bold px-3 py-1 rounded-full tracking-wider mb-2 inline-block">TRAINING</span>
+                                <h4 class="text-2xl font-bold text-white mb-2">Custom Workouts</h4>
+                                <p class="text-gray-300 text-sm">
+                                    Get weekly routines tailored to your available equipment, experience level, and specific aesthetic goals.
+                                </p>
+                            </div>
+                        </label>
+                        
+                        <!-- Card 3: Nutrition -->
+                        <label class="carousel-card" for="item-3" id="card-3">
+                            <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80" alt="Nutrition">
+                             <div class="card-caption">
+                                <span class="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wider mb-2 inline-block">NUTRITION</span>
+                                <h4 class="text-2xl font-bold text-white mb-2">Smart Meal Guides</h4>
+                                <p class="text-gray-300 text-sm">
+                                    Simple, effective nutrition plans with calorie targets and macros calculated specifically for your body type.
+                                </p>
+                            </div>
+                        </label>
+
+                        <!-- Card 4: Progress -->
+                        <label class="carousel-card" for="item-4" id="card-4">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" alt="Progress Tracking">
+                             <div class="card-caption">
+                                <span class="bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wider mb-2 inline-block">ANALYTICS</span>
+                                <h4 class="text-2xl font-bold text-white mb-2">Track Progress</h4>
+                                <p class="text-gray-300 text-sm">
+                                    Visualize your improvements over time with detailed charts comparing your muscle groups and symmetry scores.
+                                </p>
+                            </div>
+                        </label>
+
+                        <!-- Card 5: Community -->
+                        <label class="carousel-card" for="item-5" id="card-5">
+                            <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=1200&q=80" alt="Community">
+                             <div class="card-caption">
+                                <span class="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full tracking-wider mb-2 inline-block">COMMUNITY</span>
+                                <h4 class="text-2xl font-bold text-white mb-2">Stay Motivated</h4>
+                                <p class="text-gray-300 text-sm">
+                                    Join a community of like-minded individuals. Share your journey, get tips, and stay accountable to your goals.
+                                </p>
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+                <p class="text-gray-500 text-sm mt-8 italic">Click any card to bring it to the front</p>
+            </section>
+        </main>
+        
+        <!-- Rest of body content -->
+        <section class="py-20 container mx-auto px-6 border-t border-gray-900">
+             <h3 class="text-3xl font-bold text-center mb-12">How It Works in 3 Simple Steps</h3>
+             <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-800 hover:border-green-500/30 transition-colors">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                    <h4 class="text-xl font-bold mb-2">1. Upload Photos</h4>
+                    <p class="text-gray-400">Securely upload front, side, and back photos. Your privacy is guaranteed.</p>
+                </div>
+                <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-800 hover:border-green-500/30 transition-colors">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.553L16.5 21.75l-.398-1.197a3.375 3.375 0 00-2.456-2.456L12.75 18l1.197-.398a3.375 3.375 0 002.456-2.456L16.5 14.25l.398 1.197a3.375 3.375 0 002.456 2.456l1.197.398-1.197.398a3.375 3.375 0 00-2.456 2.456z" /></svg>
+                    <h4 class="text-xl font-bold mb-2">2. Get AI Analysis</h4>
+                    <p class="text-gray-400">Our AI analyzes your physique, identifying muscle strengths and weaknesses.</p>
+                </div>
+                 <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-800 hover:border-green-500/30 transition-colors">
+                    <svg class="w-12 h-12 mx-auto mb-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.5 6h3m-6.75 6.75h9.5m-9.5 0a4.5 4.5 0 01-4.5-4.5v-1.5a4.5 4.5 0 014.5-4.5h1.5a4.5 4.5 0 014.5 4.5v1.5a4.5 4.5 0 01-4.5 4.5m-9.5 0a4.5 4.5 0 004.5 4.5h1.5a4.5 4.5 0 004.5-4.5m-9.5 0h9.5" /></svg>
+                    <h4 class="text-xl font-bold mb-2">3. Receive Your Plan</h4>
+                    <p class="text-gray-400">Get a personalized workout and meal plan to reach your goals faster.</p>
+                </div>
+             </div>
+        </section>
+
+        <footer id="footer" class="bg-gray-900/50 py-8 mt-16 text-center text-gray-400 text-sm">
+            &copy; 2025 Physique Check. All Rights Reserved.
+        </footer>
+    </div>
+
+</body>
+</html>

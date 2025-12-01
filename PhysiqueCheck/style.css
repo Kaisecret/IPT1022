@@ -1,0 +1,213 @@
+
+/* Base Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: black;
+    color: white;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Layout & Sidebar Transitions */
+#sidebar {
+    transition: width 0.3s ease, transform 0.3s ease;
+}
+
+.main-content {
+    transition: margin-left 0.3s ease;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000000; 
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333333; 
+    border-radius: 5px;
+    border: 2px solid #000000; /* Creates a padding effect */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #31FF75; /* Brand Accent Color */
+}
+
+/* Utility to hide scrollbar for carousels but keep functionality */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Drag and Drop Zone */
+.drop-zone {
+    transition: all 0.3s ease;
+}
+.drop-zone.active {
+    border-color: #31FF75;
+    background-color: rgba(17, 24, 39, 1);
+}
+
+/* Tab Styling */
+.tab-btn.active {
+    border-bottom: 2px solid #31FF75;
+    color: #31FF75;
+}
+
+/* Spinner */
+.loader {
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #31FF75;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* SVG Charts */
+.chart-svg text {
+    fill: #fff;
+    font-size: 12px;
+    font-family: sans-serif;
+}
+.radar-polygon {
+    fill: rgba(49, 255, 117, 0.5);
+    stroke: #31FF75;
+    stroke-width: 2;
+}
+.radar-grid {
+    fill: none;
+    stroke: #4A4A4A;
+    stroke-width: 1;
+}
+
+/* --- 3D Carousel Styles --- */
+input[type=radio] {
+  display: none;
+}
+
+.carousel-container {
+  width: 100%;
+  max-width: 900px;
+  height: 500px;
+  transform-style: preserve-3d;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.carousel-cards {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+}
+
+.carousel-card {
+  position: absolute;
+  width: 60%; /* Mobile default */
+  height: 100%;
+  left: 0;
+  right: 0;
+  margin: auto;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  cursor: pointer;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (min-width: 768px) {
+    .carousel-card {
+        width: 50%;
+    }
+}
+
+.carousel-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+/* Caption Overlay (Hover Effect) */
+.card-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 2rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0));
+    transform: translateY(100%); /* Hidden by default */
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0;
+}
+
+.carousel-card:hover .card-caption {
+    transform: translateY(0); /* Show on hover */
+    opacity: 1;
+}
+
+/* Zoom image on hover */
+.carousel-card:hover img {
+    transform: scale(1.1);
+}
+
+
+/* Carousel Logic */
+
+/* Item 1 Active */
+#item-1:checked ~ .carousel-cards #card-1, 
+#item-2:checked ~ .carousel-cards #card-2, 
+#item-3:checked ~ .carousel-cards #card-3,
+#item-4:checked ~ .carousel-cards #card-4,
+#item-5:checked ~ .carousel-cards #card-5 {
+  transform: translatex(0) scale(1);
+  opacity: 1;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+/* Move to Left */
+#item-1:checked ~ .carousel-cards #card-5, 
+#item-2:checked ~ .carousel-cards #card-1, 
+#item-3:checked ~ .carousel-cards #card-2,
+#item-4:checked ~ .carousel-cards #card-3,
+#item-5:checked ~ .carousel-cards #card-4 {
+  transform: translatex(-50%) scale(0.8);
+  opacity: 0.4;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Move to Right */
+#item-1:checked ~ .carousel-cards #card-2, 
+#item-2:checked ~ .carousel-cards #card-3, 
+#item-3:checked ~ .carousel-cards #card-4,
+#item-4:checked ~ .carousel-cards #card-5,
+#item-5:checked ~ .carousel-cards #card-1 {
+  transform: translatex(50%) scale(0.8);
+  opacity: 0.4;
+  z-index: 0;
+  pointer-events: none;
+}

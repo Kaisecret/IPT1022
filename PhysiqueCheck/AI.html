@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CardioGuard AI - App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Import Map for Google GenAI SDK -->
+    <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+      }
+    }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Spinner Animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        /* Utility for hiding views */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-slate-50 font-sans text-gray-900">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm py-3 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div onclick="navigateTo('dashboard')" class="flex items-center gap-2 cursor-pointer select-none">
+                <div class="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                        <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                    </svg>
+                </div>
+                <span class="font-bold text-lg tracking-tight text-gray-800">CardioGuard</span>
+            </div>
+            <a href="landing.html" class="text-sm font-medium text-gray-500 hover:text-sky-600 transition-colors">
+                Back to Landing page
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard" class="flex flex-col items-center justify-center min-h-[85vh] py-12 px-4 bg-gradient-to-b from-slate-50 to-white">
+            <!-- Main Logo Icon -->
+            <div class="bg-sky-500 rounded-full p-4 shadow-xl shadow-sky-200 mb-6 transform hover:scale-105 transition-transform duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10 text-white">
+                    <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                </svg>
+            </div>
+
+            <!-- Headlines -->
+            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-2 tracking-tight text-center">
+                AI-Based Heart Disease
+            </h1>
+            <h2 class="text-2xl md:text-4xl font-bold mb-10 text-center">
+                <span class="text-slate-500">Early Detection</span> <span class="text-[#d97757]">System</span>
+            </h2>
+            
+            <!-- Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl px-4">
+                <!-- Start Diagnosis -->
+                <div onclick="navigateTo('assessment')" class="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-sky-200 transition-all cursor-pointer flex flex-col items-center text-center group h-full transform hover:-translate-y-1">
+                    <div class="bg-sky-500 w-20 h-20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-sky-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10 text-white">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-slate-900 mb-2">Start Diagnosis</h3>
+                    <p class="text-slate-500 text-base leading-relaxed max-w-xs">Begin a comprehensive heart health assessment</p>
+                </div>
+
+                <!-- View Past Results -->
+                <div onclick="navigateTo('past-results')" class="bg-white p-10 rounded-3xl shadow-sm border border-slate-100 hover:shadow-lg hover:border-orange-200 transition-all cursor-pointer flex flex-col items-center text-center group h-full transform hover:-translate-y-1">
+                    <div class="bg-[#ef8354] w-20 h-20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-xl shadow-orange-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-10 h-10 text-white">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-slate-900 mb-2">View Past Results</h3>
+                    <p class="text-slate-500 text-base leading-relaxed max-w-xs">Access your previous diagnostic reports</p>
+                </div>
+            </div>
+            
+            <p class="mt-16 text-sm text-slate-400 max-w-lg text-center font-medium">
+                This tool is for informational purposes only and should not replace professional medical advice.
+            </p>
+        </div>
+
+        <!-- ANALYZING VIEW (Loading) -->
+        <div id="view-analyzing" class="hidden flex flex-col items-center justify-center min-h-[80vh] text-center px-6 bg-white">
+            <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-sky-500 mb-8"></div>
+            <h2 class="text-2xl font-extrabold text-gray-800 mb-4">Analyzing Medical Data</h2>
+            <p class="text-lg text-gray-500 max-w-xl">Our AI is processing your inputs and imaging scans to detect potential risks...</p>
+        </div>
+
+        <!-- ASSESSMENT VIEW (Form) -->
+        <div id="view-assessment" class="hidden max-w-4xl mx-auto py-12 px-4 sm:px-6">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#2e9ccc] mb-6 shadow-xl shadow-sky-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                    </svg>
+                </div>
+                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-2 tracking-tight">
+                    Heart Health Diagnosis
+                </h1>
+                <p class="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mt-2 font-medium">
+                    Complete the form below for a comprehensive heart disease risk assessment
+                </p>
+            </div>
+
+            <form id="assessment-form" class="space-y-8">
+                <!-- Section 1: Patient Profile -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="bg-sky-100 p-3 rounded-xl">
+                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-sky-600">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900">Patient Profile</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Age</label>
+                            <input name="age" type="number" required placeholder="e.g. 45" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Gender</label>
+                            <div class="relative">
+                                <select name="gender" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 appearance-none focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                    <option>Other</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Weight (kg)</label>
+                            <input name="weight" type="number" placeholder="e.g. 75" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                         <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Height (cm)</label>
+                            <input name="height" type="number" placeholder="e.g. 175" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Medical History -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="bg-purple-100 p-3 rounded-xl">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-purple-600">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900">Medical History</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Smoking Status</label>
+                            <div class="relative">
+                                <select name="smokingStatus" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all shadow-sm">
+                                    <option>Never</option>
+                                    <option>Former Smoker</option>
+                                    <option>Current Smoker</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Family History of Heart Disease</label>
+                            <div class="relative">
+                                <select name="familyHistory" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 appearance-none focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all shadow-sm">
+                                    <option>No</option>
+                                    <option>Yes (Immediate Family)</option>
+                                </select>
+                                 <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                         <label class="block text-sm font-bold text-slate-700 mb-4">Known Medical Conditions</label>
+                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <label class="flex items-center gap-3 p-4 rounded-xl border bg-white border-gray-200 hover:bg-slate-50 cursor-pointer transition-all shadow-sm hover:shadow-md">
+                                <input type="checkbox" name="medicalConditions" value="Hypertension (High BP)" class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 border-gray-300">
+                                <span class="text-slate-800 font-semibold text-sm">Hypertension (High BP)</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-4 rounded-xl border bg-white border-gray-200 hover:bg-slate-50 cursor-pointer transition-all shadow-sm hover:shadow-md">
+                                <input type="checkbox" name="medicalConditions" value="Diabetes Type 2" class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 border-gray-300">
+                                <span class="text-slate-800 font-semibold text-sm">Diabetes Type 2</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-4 rounded-xl border bg-white border-gray-200 hover:bg-slate-50 cursor-pointer transition-all shadow-sm hover:shadow-md">
+                                <input type="checkbox" name="medicalConditions" value="High Cholesterol" class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 border-gray-300">
+                                <span class="text-slate-800 font-semibold text-sm">High Cholesterol</span>
+                            </label>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Vitals -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="bg-sky-50 p-3 rounded-xl">
+                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-sky-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900">Vitals & Measurements</h3>
+                    </div>
+                    
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                         <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Systolic BP (mmHg)</label>
+                            <input name="systolicBP" type="number" placeholder="e.g. 120" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                        <div>
+                             <label class="block text-sm font-bold text-slate-700 mb-2">Diastolic BP (mmHg)</label>
+                             <input name="diastolicBP" type="number" placeholder="e.g. 80" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Total Cholesterol (mg/dL)</label>
+                            <input name="cholesterol" type="number" placeholder="e.g. 190" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Section 4: Advanced Lipid Panel -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="bg-sky-50 p-3 rounded-xl">
+                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-sky-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900">Advanced Lipid Panel</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Low HDL Cholesterol</label>
+                            <div class="flex gap-4 mt-1">
+                                <label class="flex items-center gap-2 cursor-pointer bg-slate-50 border border-gray-200 px-4 py-3 rounded-lg hover:bg-sky-50 transition-colors w-full">
+                                    <input type="radio" name="lowHDL" value="Yes" class="w-5 h-5 text-sky-500 border-gray-300 focus:ring-sky-500">
+                                    <span class="text-slate-800 text-base font-medium">Yes</span>
+                                </label>
+                                 <label class="flex items-center gap-2 cursor-pointer bg-slate-50 border border-gray-200 px-4 py-3 rounded-lg hover:bg-sky-50 transition-colors w-full">
+                                    <input type="radio" name="lowHDL" value="No" checked class="w-5 h-5 text-sky-500 border-gray-300 focus:ring-sky-500">
+                                    <span class="text-slate-800 text-base font-medium">No</span>
+                                </label>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2 font-medium">HDL &lt; 40 mg/dL (men) or &lt; 50 mg/dL (women)</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">High LDL Cholesterol</label>
+                             <div class="flex gap-4 mt-1">
+                                <label class="flex items-center gap-2 cursor-pointer bg-slate-50 border border-gray-200 px-4 py-3 rounded-lg hover:bg-sky-50 transition-colors w-full">
+                                    <input type="radio" name="highLDL" value="Yes" class="w-5 h-5 text-sky-500 border-gray-300 focus:ring-sky-500">
+                                    <span class="text-slate-800 text-base font-medium">Yes</span>
+                                </label>
+                                 <label class="flex items-center gap-2 cursor-pointer bg-slate-50 border border-gray-200 px-4 py-3 rounded-lg hover:bg-sky-50 transition-colors w-full">
+                                    <input type="radio" name="highLDL" value="No" checked class="w-5 h-5 text-sky-500 border-gray-300 focus:ring-sky-500">
+                                    <span class="text-slate-800 text-base font-medium">No</span>
+                                </label>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2 font-medium">LDL ≥ 160 mg/dL</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Triglyceride Level</label>
+                        <input name="triglycerides" type="number" placeholder="e.g., 150 mg/dL" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        <p class="text-xs text-gray-400 mt-2 ml-1 font-medium">Normal: &lt; 150 mg/dL</p>
+                    </div>
+                </div>
+
+                <!-- Section 5: Blood Tests -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="bg-red-50 p-3 rounded-xl">
+                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-red-400">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-5.385 5.965-9.75 11.332-9.75 15.195 0 5.178 4.365 9.375 9.75 9.375s9.75-4.197 9.75-9.375c0-3.863-4.365-9.23-9.75-15.195Z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900">Advanced Blood Tests</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Fasting Blood Sugar</label>
+                            <input name="fastingBloodSugar" type="number" placeholder="e.g., 95 mg/dL" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">CRP Level</label>
+                            <input name="crpLevel" type="number" step="0.1" placeholder="e.g., 1.5 mg/L" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Homocysteine Level</label>
+                            <input name="homocysteineLevel" type="number" placeholder="e.g., 10 µmol/L" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 6: Lifestyle -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="bg-green-50 p-3 rounded-xl">
+                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-green-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900">Lifestyle</h3>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Exercise Habits</label>
+                        <div class="relative">
+                            <select name="exerciseHabits" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 appearance-none focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                                <option>None</option>
+                                <option>Light (1-2 times/week)</option>
+                                <option>Moderate (3-4 times/week)</option>
+                                <option>Active (5+ times/week)</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 7: Additional Lifestyle -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="bg-orange-50 p-3 rounded-xl">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-orange-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.927 14.927 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900">Additional Lifestyle Factors</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Alcohol Consumption</label>
+                            <div class="relative">
+                                <select name="alcoholConsumption" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 appearance-none focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                                    <option>None</option>
+                                    <option>Socially</option>
+                                    <option>Moderate</option>
+                                    <option>Heavy</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Stress Level</label>
+                            <div class="relative">
+                                <select name="stressLevel" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 appearance-none focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                                    <option>Moderate</option>
+                                    <option>Low</option>
+                                    <option>High</option>
+                                    <option>Very High</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Sleep Hours per Night</label>
+                            <input name="sleepHours" type="number" placeholder="e.g. 7.5" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Sugar Consumption</label>
+                            <div class="relative">
+                                <select name="sugarConsumption" class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 appearance-none focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm">
+                                    <option>Moderate (occasional treats)</option>
+                                    <option>Low</option>
+                                    <option>High</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+                                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 8: Symptoms -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="bg-yellow-50 p-3 rounded-xl">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-yellow-500">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-900">Optional Symptoms</h3>
+                    </div>
+                    
+                    <div>
+                         <label class="block text-sm font-bold text-slate-700 mb-2">Symptoms / Notes</label>
+                         <textarea name="symptoms" rows="4" placeholder="Describe any symptoms..." class="w-full bg-white border border-gray-200 text-slate-800 text-base rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all shadow-sm resize-y"></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 9: File Uploads (uniform 4 inputs) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
+                    <h3 class="text-xl md:text-2xl font-extrabold text-slate-900 mb-2">Medical Imaging Uploads</h3>
+                    <p class="text-slate-500 text-base mb-8 font-medium">Optional - helps improve prediction accuracy</p>
+
+                    <!-- Echo -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Echocardiogram</label>
+                        <input name="echoImage" type="file" accept="image/*,application/pdf" class="w-full text-base text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                    </div>
+
+                    <!-- CT -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">CT Scan</label>
+                        <input name="ctScanImage" type="file" accept="image/*,application/pdf" class="w-full text-base text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                    </div>
+
+                    <!-- MRI -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">MRI (Cardiac MRI)</label>
+                        <input name="mriCardiacImage" type="file" accept="image/*,application/pdf" class="w-full text-base text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                    </div>
+
+                    <!-- X-Ray -->
+                    <div class="mb-0">
+                        <label class="block text-sm font-bold text-slate-700 mb-2">X-Ray (Chest X-ray)</label>
+                        <input name="chestXrayImage" type="file" accept="image/*,application/pdf" class="w-full text-base text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                    <button type="submit" class="flex-1 bg-[#2e9ccc] hover:bg-[#2587b2] text-white font-bold text-lg py-3 px-6 rounded-xl shadow-lg shadow-sky-100 transition-all transform hover:-translate-y-1">
+                        Submit for Analysis
+                    </button>
+                    <button type="button" onclick="resetForm()" class="flex-1 bg-white border-2 border-slate-200 hover:bg-slate-50 text-slate-800 font-bold text-lg py-3 px-6 rounded-xl transition-colors">
+                        Clear Form
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- RESULTS VIEW -->
+        <div id="view-results" class="hidden max-w-4xl mx-auto py-12 px-4 sm:px-6">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Analysis Results</h1>
+                <p class="text-gray-500">Based on the provided medical data and imagery</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Risk Score Card -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center justify-center border border-gray-100">
+                   <h3 class="text-base font-semibold text-gray-600 mb-2">Estimated Risk Level</h3>
+                   <div id="result-risk-level" class="text-4xl font-extrabold mb-2"></div>
+                   <div class="w-full bg-gray-200 rounded-full h-3 mb-3 mt-1 max-w-xs">
+                      <div id="result-risk-bar" class="h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                   </div>
+                   <p class="text-xs text-gray-400">Risk Score: <span id="result-risk-score"></span>/100</p>
+                </div>
+
+                <!-- Summary Card -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+                   <h3 class="text-base font-semibold text-gray-900 mb-3">Clinical Summary</h3>
+                   <p id="result-summary" class="text-gray-600 leading-relaxed text-sm"></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                 <div class="bg-white rounded-xl shadow border border-gray-100 p-6">
+                    <h3 class="font-bold text-gray-900 mb-3">Key Findings</h3>
+                    <ul id="result-findings" class="space-y-2"></ul>
+                 </div>
+                 <div class="bg-white rounded-xl shadow border border-gray-100 p-6">
+                    <h3 class="font-bold text-gray-900 mb-3">Recommendations</h3>
+                    <ul id="result-recommendations" class="space-y-2"></ul>
+                 </div>
+            </div>
+
+            <div class="bg-yellow-50 border border-yellow-100 rounded-lg p-3 mb-6">
+                <p class="text-xs text-yellow-800 text-center" id="result-disclaimer"></p>
+            </div>
+
+            <div class="text-center">
+                <button onclick="navigateTo('dashboard')" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-6 rounded-lg transition-colors text-sm">
+                  Start New Assessment
+                </button>
+            </div>
+        </div>
+
+        <!-- PAST RESULTS VIEW -->
+        <div id="view-past-results" class="hidden max-w-6xl mx-auto py-12 px-4 sm:px-6">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="bg-[#ef8354] p-3 rounded-full shadow-lg shadow-orange-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-white">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                    </svg>
+                </div>
+                <div>
+                  <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Past Results</h1>
+                  <p class="text-slate-500 text-lg font-medium">View your previous heart health assessments</p>
+                </div>
+            </div>
+            
+            <div id="past-results-container" class="grid gap-6">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm">
+            <p>&copy; 2025 CardioGuard AI. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- LOGIC -->
+    <script type="module">
+        import { GoogleGenAI, Type } from "@google/genai";
+
+        // --- CONFIG ---
+        // In a real deployed HTML file, this key needs to be provided by the user or build system
+        const API_KEY = "YOUR_API_KEY_HERE"; 
+       
+        let genAI = null;
+        try {
+            genAI = new GoogleGenAI({ apiKey: API_KEY });
+        } catch (e) {
+            console.error("Gemini API Init Error. Please check API Key.", e);
+        }
+
+        // --- NAVIGATION ---
+        window.navigateTo = function(viewId) {
+            // Hide all views
+            ['view-dashboard', 'view-assessment', 'view-analyzing', 'view-results', 'view-past-results'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+
+            // Show selected
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) {
+                target.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            }
+            
+            // Special handlers
+            if (viewId === 'past-results') {
+                renderPastResults();
+            }
+        };
+
+        window.resetForm = function() {
+            if(confirm("Are you sure you want to clear the form?")) {
+                document.getElementById('assessment-form').reset();
+            }
+        }
+
+        // --- FORM SUBMISSION & AI ---
+        const form = document.getElementById('assessment-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!API_KEY || API_KEY === "YOUR_API_KEY_HERE") {
+                alert("Please configure the API_KEY in the source code to run the analysis.");
+                return;
+            }
+
+            navigateTo('analyzing');
+
+            // Gather Data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            data.medicalConditions = [];
+            document.querySelectorAll('input[name="medicalConditions"]:checked').forEach(cb => {
+                data.medicalConditions.push(cb.value);
+            });
+
+            // Construct AI Prompt
+            const promptText = `
+              You are an expert cardiologist AI assistant. Analyze the following patient data:
+              Age: ${data.age}, Gender: ${data.gender}, Weight: ${data.weight}kg, Height: ${data.height}cm
+              Smoking: ${data.smokingStatus}, Family History: ${data.familyHistory}
+              Conditions: ${data.medicalConditions.join(', ') || 'None'}
+              BP: ${data.systolicBP}/${data.diastolicBP}, Cholesterol: ${data.cholesterol}
+              Low HDL: ${data.lowHDL}, High LDL: ${data.highLDL}, Triglycerides: ${data.triglycerides}
+              Fasting Blood Sugar: ${data.fastingBloodSugar}, CRP: ${data.crpLevel}, Homocysteine: ${data.homocysteineLevel}
+              Exercise: ${data.exerciseHabits}, Alcohol: ${data.alcoholConsumption}, Stress: ${data.stressLevel}
+              Sleep: ${data.sleepHours}, Sugar: ${data.sugarConsumption}
+              Symptoms: ${data.symptoms}
+              
+              Output strictly in JSON format with properties: riskLevel (Low/Moderate/High/Critical), riskScore (0-100), summary, keyFindings (array of strings), recommendations (array of strings), disclaimer.
+            `;
+
+            try {
+                // Call Gemini
+                // Note: File uploads are simplified here (text only) for the HTML demo to reduce complexity of Base64 conversion without bundlers
+                const response = await genAI.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: { parts: [{ text: promptText }] },
+                    config: {
+                        responseMimeType: "application/json",
+                         responseSchema: {
+                          type: Type.OBJECT,
+                          properties: {
+                            riskLevel: { type: Type.STRING, enum: ['Low', 'Moderate', 'High', 'Critical'] },
+                            riskScore: { type: Type.INTEGER },
+                            summary: { type: Type.STRING },
+                            keyFindings: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            recommendations: { type: Type.ARRAY, items: { type: Type.STRING } },
+                            disclaimer: { type: Type.STRING }
+                          },
+                          required: ['riskLevel', 'riskScore', 'summary', 'keyFindings', 'recommendations']
+                        }
+                    }
+                });
+
+                const result = JSON.parse(response.text);
+                
+                // Add Meta
+                result.id = Date.now().toString();
+                result.date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                // Save to LocalStorage
+                const saved = JSON.parse(localStorage.getItem('cardioGuard_results') || '[]');
+                localStorage.setItem('cardioGuard_results', JSON.stringify([result, ...saved]));
+
+                // Render Results
+                renderResultView(result);
+                navigateTo('results');
+
+            } catch (err) {
+                console.error(err);
+                alert("AI Analysis Failed. See console for details.");
+                navigateTo('assessment');
+            }
+        });
+
+        function renderResultView(result) {
+            const riskColors = {
+                'Low': 'text-green-500',
+                'Moderate': 'text-yellow-500',
+                'High': 'text-orange-500',
+                'Critical': 'text-red-600'
+            };
+            const scoreColors = {
+                'Low': 'bg-green-500',
+                'Moderate': 'bg-yellow-500',
+                'High': 'bg-orange-500',
+                'Critical': 'bg-red-500'
+            };
+            
+            const levelColor = riskColors[result.riskLevel] || 'text-gray-500';
+            const barColor = scoreColors[result.riskLevel] || 'bg-gray-500';
+
+            document.getElementById('result-risk-level').className = `text-4xl font-extrabold mb-2 ${levelColor}`;
+            document.getElementById('result-risk-level').innerText = result.riskLevel;
+            
+            document.getElementById('result-risk-bar').className = `h-3 rounded-full transition-all duration-1000 ${barColor}`;
+            setTimeout(() => { document.getElementById('result-risk-bar').style.width = `${result.riskScore}%`; }, 100);
+            
+            document.getElementById('result-risk-score').innerText = result.riskScore;
+            document.getElementById('result-summary').innerText = result.summary;
+            document.getElementById('result-disclaimer').innerHTML = `<strong>Disclaimer:</strong> ${result.disclaimer || "Consult a doctor."}`;
+
+            const findingsList = document.getElementById('result-findings');
+            findingsList.innerHTML = result.keyFindings.map(f => `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-orange-400 mt-0.5">•</span>${f}</li>`).join('');
+
+            const recsList = document.getElementById('result-recommendations');
+            recsList.innerHTML = result.recommendations.map(r => `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-green-500 mt-0.5">✓</span>${r}</li>`).join('');
+        }
+
+        // --- PAST RESULTS ---
+        function renderPastResults() {
+            const saved = JSON.parse(localStorage.getItem('cardioGuard_results') || '[]');
+            const container = document.getElementById('past-results-container');
+            
+            if (saved.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-3xl border border-gray-200 p-12 flex flex-col items-center text-center shadow-sm">
+                        <div class="mb-6">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 text-gray-300">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-extrabold text-slate-900 mb-2">No Past Results</h2>
+                        <p class="text-slate-500 text-lg mb-8 font-medium">You haven't completed any diagnoses yet</p>
+                        <button onclick="navigateTo('assessment')" class="bg-[#10a1d6] hover:bg-[#0e8cba] text-white font-bold text-lg py-3 px-8 rounded-xl transition-all shadow-lg shadow-sky-100 transform hover:-translate-y-1">
+                            Start Your First Diagnosis
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = saved.map(res => {
+                    const bgClass = res.riskLevel === 'Low' ? 'bg-green-500' : 
+                                    res.riskLevel === 'Moderate' ? 'bg-yellow-500' : 
+                                    res.riskLevel === 'High' ? 'bg-orange-500' : 'bg-red-600';
+                    const textClass = res.riskLevel === 'Low' ? 'text-green-500' : 
+                                      res.riskLevel === 'Moderate' ? 'text-yellow-500' : 
+                                      res.riskLevel === 'High' ? 'text-orange-500' : 'text-red-600';
+                    
+                    return `
+                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="flex items-center gap-4">
+                           <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-xl ${bgClass}">
+                              ${res.riskScore}
+                           </div>
+                           <div>
+                              <p class="text-slate-400 font-medium text-sm mb-0.5">${res.date}</p>
+                              <h3 class="text-lg font-bold text-slate-900">
+                                Risk Level: <span class="${textClass}">${res.riskLevel}</span>
+                              </h3>
+                           </div>
+                        </div>
+                        <div class="w-full md:w-auto">
+                            <button onclick="alert('Full details view not implemented in this static demo')" class="w-full md:w-auto border-2 border-slate-200 text-slate-700 font-bold py-2 px-6 rounded-lg hover:bg-slate-50 transition-colors text-sm">
+                                View Details
+                            </button>
+                        </div>
+                     </div>
+                    `;
+                }).join('');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physique Check - Analysis Results</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-black text-white">
+
+    <div class="relative min-h-screen flex">
+        <!-- Sidebar (Desktop) -->
+        <aside id="sidebar" class="fixed top-0 left-0 h-screen bg-gray-900 text-white z-50 flex flex-col w-64 hidden md:flex border-r border-gray-800 transition-all duration-300">
+            <div class="flex items-center px-6 h-20 border-b border-gray-800 overflow-hidden">
+                <svg class="w-8 h-8 text-white flex-shrink-0" viewBox="0 0 100 100" fill="none"><path d="M50 10 C 70 10, 85 25, 85 45 C 85 70, 65 90, 50 90 C 35 90, 15 70, 15 45 C 15 25, 30 10, 50 10 Z" stroke="currentColor" stroke-width="5" /><path d="M35 50 L48 63 L65 40" stroke="#31FF75" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <span class="text-xl font-bold ml-3 sidebar-text whitespace-nowrap">Physique Check</span>
+            </div>
+            <nav class="flex-1 px-2 py-4 space-y-2">
+                <a href="home.html" class="w-full flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors group">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" /></svg>
+                    <span class="ml-4 sidebar-text whitespace-nowrap">Home</span>
+                </a>
+                <a href="stats.html" class="w-full flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors group">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+                    <span class="ml-4 sidebar-text whitespace-nowrap">Your Stats</span>
+                </a>
+                <a href="history.html" class="w-full flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors group">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span class="ml-4 sidebar-text whitespace-nowrap">History</span>
+                </a>
+                <a href="profile.html" class="w-full flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700/50 hover:text-white transition-colors group">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span class="ml-4 sidebar-text whitespace-nowrap">Profile</span>
+                </a>
+            </nav>
+            <div class="px-2 py-4 border-t border-gray-800 space-y-2">
+                <a href="logout.html" class="w-full flex items-center p-3 rounded-lg text-gray-300 hover:bg-red-500/50 hover:text-white transition-colors group">
+                    <svg class="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                    <span class="ml-4 sidebar-text whitespace-nowrap">Logout</span>
+                </a>
+            </div>
+            <button class="sidebar-toggle absolute -right-3 top-8 bg-gray-700 text-white hover:bg-green-500 rounded-full p-1.5 focus:outline-none">
+                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+        </aside>
+        
+        <!-- Mobile Sidebar -->
+        <aside id="mobile-sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 -translate-x-full transition-transform duration-300 md:hidden">
+             <div class="flex items-center px-6 h-20 border-b border-gray-800">
+                <span class="text-xl font-bold ml-3">Physique Check</span>
+            </div>
+            <nav class="px-2 py-4 space-y-2">
+                <a href="home.html" class="block p-3 rounded bg-gray-800 text-green-400">Home</a>
+                <a href="stats.html" class="block p-3 rounded text-gray-300">Stats</a>
+                <a href="history.html" class="block p-3 rounded text-gray-300">History</a>
+                <a href="profile.html" class="block p-3 rounded text-gray-300">Profile</a>
+                <a href="logout.html" class="block p-3 rounded text-red-400">Logout</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content flex-1 flex flex-col md:ml-64 transition-all duration-300">
+            <!-- Mobile Header -->
+            <div class="md:hidden sticky top-0 flex items-center p-4 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 z-30">
+                <button class="sidebar-toggle"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg></button>
+                <span class="ml-4 font-bold text-xl">Your Analysis</span>
+            </div>
+
+            <div class="p-6 container mx-auto max-w-6xl pb-24">
+                
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-4xl font-bold">Your Analysis</h2>
+                    <a href="home.html" class="flex items-center gap-2 text-green-400 border border-green-500 px-4 py-2 rounded hover:bg-green-500/10">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0l3.181-3.183m-11.664 0l3.181-3.183a8.25 8.25 0 00-11.664 0l-3.181 3.183" /></svg>
+                        New Analysis
+                    </a>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex space-x-4 border-b border-gray-700 mb-8 overflow-x-auto">
+                    <button class="tab-btn active px-4 py-3 font-semibold whitespace-nowrap text-green-500 border-b-2 border-green-500" data-tab="tab-content-report">Physique Report</button>
+                    <button class="tab-btn px-4 py-3 font-semibold text-gray-400 hover:text-white whitespace-nowrap" data-tab="tab-content-workout">Workout Plan</button>
+                    <button class="tab-btn px-4 py-3 font-semibold text-gray-400 hover:text-white whitespace-nowrap" data-tab="tab-content-meal">Meal Guide</button>
+                </div>
+
+                <!-- Report Tab -->
+                <div id="tab-content-report">
+                    <div class="grid md:grid-cols-2 gap-8 items-center mb-8">
+                        <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-800 h-80" id="radar-chart-container">
+                            <!-- Radar Chart Injected Here -->
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-800">
+                                <h4 class="text-lg font-semibold text-green-400">Overall Score: <span id="overall-score"></span></h4>
+                                <p class="text-gray-300 mt-2" id="summary-text"></p>
+                            </div>
+                            <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-800">
+                                <h4 class="text-lg font-semibold text-green-400">Posture & Structure</h4>
+                                <p class="text-gray-300 mt-2" id="posture-text"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-6 text-center">Detailed Muscle Group Report</h3>
+                    <div id="muscle-details-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+
+                <!-- Workout Tab -->
+                <div id="tab-content-workout" class="hidden">
+                    <div id="workout-plan-container" class="space-y-6"></div>
+                </div>
+
+                <!-- Meal Tab -->
+                <div id="tab-content-meal" class="hidden">
+                        <div id="meal-guide-container" class="space-y-8"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 flex justify-around items-center h-16 z-50 md:hidden">
+        <a href="home.html" class="flex flex-col items-center justify-center w-full h-full text-green-400">
+            <svg class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" /></svg>
+            <span class="text-[10px] font-medium">Home</span>
+        </a>
+        <a href="stats.html" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-white transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+            <span class="text-[10px] font-medium">Stats</span>
+        </a>
+        <a href="history.html" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-white transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span class="text-[10px] font-medium">History</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-white transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            <span class="text-[10px] font-medium">Profile</span>
+        </a>
+    </nav>
+
+    <script type="module">
+        const STORAGE_KEYS = {
+            CURRENT_REPORT: 'physique_current_report',
+            PLANS: 'physique_plans'
+        };
+
+        const state = {
+            get: (key, defaultVal) => {
+                const val = localStorage.getItem(key);
+                return val ? JSON.parse(val) : defaultVal;
+            }
+        };
+
+        // Chart Rendering Helper
+        function renderRadarChart(data, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const size = 300; const center = size / 2; const radius = size * 0.4;
+            const subjects = ['Chest', 'Abs', 'Arms', 'Back', 'Legs'];
+            const scores = [data.chest.score, data.abs.score, data.arms.score, data.back.score, data.legs.score];
+            const angleSlice = (Math.PI * 2) / subjects.length;
+            let points = ""; const levels = 5;
+            let svgContent = `<svg width="100%" height="100%" viewBox="0 0 ${size} ${size}" class="chart-svg">`;
+            for(let i=1; i<=levels; i++) {
+                let levelPoints = ""; const levelRadius = radius * (i / levels);
+                for(let j=0; j<subjects.length; j++) {
+                    const x = center + levelRadius * Math.cos(j * angleSlice - Math.PI/2);
+                    const y = center + levelRadius * Math.sin(j * angleSlice - Math.PI/2);
+                    levelPoints += `${x},${y} `;
+                }
+                svgContent += `<polygon points="${levelPoints}" class="radar-grid" />`;
+            }
+            for(let j=0; j<subjects.length; j++) {
+                const x = center + radius * Math.cos(j * angleSlice - Math.PI/2);
+                const y = center + radius * Math.sin(j * angleSlice - Math.PI/2);
+                svgContent += `<line x1="${center}" y1="${center}" x2="${x}" y2="${y}" stroke="#4A4A4A" />`;
+                const labelX = center + (radius + 20) * Math.cos(j * angleSlice - Math.PI/2);
+                const labelY = center + (radius + 20) * Math.sin(j * angleSlice - Math.PI/2);
+                svgContent += `<text x="${labelX}" y="${labelY}" text-anchor="middle" alignment-baseline="middle">${subjects[j]}</text>`;
+            }
+            for(let j=0; j<subjects.length; j++) {
+                const val = scores[j] / 10;
+                const x = center + (radius * val) * Math.cos(j * angleSlice - Math.PI/2);
+                const y = center + (radius * val) * Math.sin(j * angleSlice - Math.PI/2);
+                points += `${x},${y} `;
+            }
+            svgContent += `<polygon points="${points}" class="radar-polygon" />`;
+            svgContent += `</svg>`;
+            container.innerHTML = svgContent;
+        }
+
+        function renderReport(report, plans) {
+            // Render Radar Chart
+            renderRadarChart(report.muscleAnalysis, 'radar-chart-container');
+
+            // Fill Text Data
+            document.getElementById('overall-score').innerText = report.physiqueRating.overallScore + "/10";
+            document.getElementById('summary-text').innerText = report.physiqueRating.summary;
+            document.getElementById('posture-text').innerText = report.postureNotes;
+
+            // Muscle Details
+            const muscleContainer = document.getElementById('muscle-details-grid');
+            muscleContainer.innerHTML = '';
+            Object.entries(report.muscleAnalysis).forEach(([name, data]) => {
+                muscleContainer.innerHTML += `
+                    <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-800">
+                        <h4 class="text-xl font-bold capitalize mb-3">${name}</h4>
+                        <p><strong class="text-green-400">Strengths:</strong> ${data.strengths}</p>
+                        <p class="mt-2"><strong class="text-yellow-400">Weaknesses:</strong> ${data.weaknesses}</p>
+                        <p class="mt-2 text-sm text-gray-400"><strong class="text-blue-400">Symmetry:</strong> ${data.symmetryNotes}</p>
+                    </div>
+                `;
+            });
+
+            // Render Workout
+            if(plans) {
+                const workoutContainer = document.getElementById('workout-plan-container');
+                workoutContainer.innerHTML = plans.workoutPlan.plan.map(day => `
+                    <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-800 mb-4">
+                        <div class="font-bold text-xl flex justify-between items-center mb-2">
+                            <div><span class="text-green-400">${day.dayOfWeek}:</span> ${day.targetMuscle}</div>
+                        </div>
+                        <div class="text-gray-300 space-y-2">
+                            <p><strong>Warm-up:</strong> ${day.warmup}</p>
+                            <ul class="pl-4 border-l-2 border-gray-700 my-3">
+                                ${day.exercises.map(ex => `<li><strong>${ex.name}</strong>: ${ex.sets} x ${ex.reps} (${ex.rest} rest)</li>`).join('')}
+                            </ul>
+                            <p><strong>Cooldown:</strong> ${day.cooldown}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Render Meal
+                const mealContainer = document.getElementById('meal-guide-container');
+                mealContainer.innerHTML = `
+                    <div class="text-center bg-gray-900/50 p-6 rounded-xl border border-gray-800 mb-6">
+                         <div class="grid grid-cols-4 gap-4">
+                            <div><p class="text-gray-400">Calories</p><p class="text-2xl font-bold text-green-400">${plans.mealGuide.dailyCalorieTarget}</p></div>
+                            <div><p class="text-gray-400">Protein</p><p class="text-2xl font-bold">${plans.mealGuide.macros.protein}</p></div>
+                            <div><p class="text-gray-400">Carbs</p><p class="text-2xl font-bold">${plans.mealGuide.macros.carbs}</p></div>
+                            <div><p class="text-gray-400">Fats</p><p class="text-2xl font-bold">${plans.mealGuide.macros.fats}</p></div>
+                         </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        ${plans.mealGuide.meals.map(meal => `
+                            <div class="bg-gray-900/50 p-6 rounded-xl border border-gray-800">
+                                <h4 class="text-xl font-bold mb-2">${meal.name}</h4>
+                                <p class="text-gray-400 text-sm mb-2">${meal.notes}</p>
+                                <ul class="list-disc list-inside text-gray-300 text-sm">
+                                    ${meal.ingredients.map(i => `<li>${i}</li>`).join('')}
+                                </ul>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sidebar Logic
+            const toggleSidebar = () => {
+                const mobileSidebar = document.getElementById('mobile-sidebar');
+                mobileSidebar.classList.toggle('-translate-x-full');
+            };
+            document.querySelectorAll('.sidebar-toggle').forEach(btn => btn.addEventListener('click', toggleSidebar));
+            const mobileOverlay = document.getElementById('mobile-overlay');
+            if(mobileOverlay) mobileOverlay.addEventListener('click', toggleSidebar);
+
+            // Tab Logic
+            const tabs = {
+                report: document.getElementById('tab-content-report'),
+                workout: document.getElementById('tab-content-workout'),
+                meal: document.getElementById('tab-content-meal')
+            };
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('active', 'text-green-500', 'border-b-2', 'border-green-500');
+                        b.classList.add('text-gray-400');
+                    });
+                    e.currentTarget.classList.remove('text-gray-400');
+                    e.currentTarget.classList.add('active', 'text-green-500', 'border-b-2', 'border-green-500');
+                    
+                    const target = e.currentTarget.dataset.tab;
+                    Object.values(tabs).forEach(el => el.classList.add('hidden'));
+                    tabs[target].classList.remove('hidden');
+                });
+            });
+
+            // Init Data
+            const report = state.get(STORAGE_KEYS.CURRENT_REPORT, null);
+            const plans = state.get(STORAGE_KEYS.PLANS, null);
+
+            if (!report) {
+                alert("No analysis found. Redirecting to home.");
+                window.location.href = 'home.html';
+                return;
+            }
+
+            renderReport(report, plans);
+        });
+    </script>
+</body>
+</html>
