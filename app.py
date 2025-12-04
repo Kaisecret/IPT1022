@@ -13,6 +13,10 @@ from torchvision import transforms
 
 from model import load_trained_model
 
+# NEW: for GYM models (recommendations)
+import pandas as pd
+from train2 import load_gym_models
+
 # ---------------- Paths & device ----------------
 
 BACKEND_ROOT = Path(__file__).resolve().parent
@@ -38,7 +42,7 @@ with CLASS_MAPPING_PATH.open("r", encoding="utf-8") as f:
 IDX_TO_CLASS = {idx: name for name, idx in class_to_idx.items()}
 NUM_CLASSES = len(IDX_TO_CLASS)
 
-# ---------------- Model ----------------
+# ---------------- CNN Model ----------------
 
 if not WEIGHTS_PATH.exists():
     raise RuntimeError(
@@ -78,6 +82,19 @@ with PLAN_RULES_PATH.open("r", encoding="utf-8") as f:
 
 print(f"[app.py] Loaded {len(PLAN_RULES)} plan rules from {PLAN_RULES_PATH}")
 
+# ---------------- GYM.csv-based recommendation models ----------------
+
+try:
+    EXERCISE_MODEL, MEAL_MODEL, GYM_META = load_gym_models()
+    GYM_FEATURE_COLS = GYM_META["feature_cols"]
+    print(f"[app.py] Loaded GYM recommendation models. Features: {GYM_FEATURE_COLS}")
+except Exception as e:
+    EXERCISE_MODEL = None
+    MEAL_MODEL = None
+    GYM_META = None
+    GYM_FEATURE_COLS = []
+    print(f"[app.py] WARNING: Could not load GYM models: {e}")
+
 # ---------------- FastAPI setup ----------------
 
 app = FastAPI(title="Physique Check API")
@@ -106,7 +123,7 @@ def run_model_on_image(img: Image.Image) -> Dict[str, float]:
         tensor = INFER_TRANSFORMS(img).unsqueeze(0).to(DEVICE)
         logits = MODEL(tensor)[0]
         probs = torch.softmax(logits, dim=0).cpu().numpy()
-    return {IDX_TO_CLASS[i]: float(probs[i]) for i in range(NUM_CLASSES)}
+        return {IDX_TO_CLASS[i]: float(probs[i]) for i in range(NUM_CLASSES)}
 
 
 def combine_predictions(pred_list: List[Dict[str, float]]) -> Dict[str, float]:
@@ -123,14 +140,23 @@ def combine_predictions(pred_list: List[Dict[str, float]]) -> Dict[str, float]:
     return combined
 
 
+def is_physique_like(preds: Dict[str, float], threshold: float = 0.4) -> bool:
+    """
+    Simple sanity check for non-physique images.
+
+    If the model's best class probability is <= threshold (e.g. 0.3–0.4),
+    we assume the image is NOT a clear physique photo.
+    """
+    if not preds:
+        return False
+    max_p = max(preds.values())
+    return max_p > threshold   # any <= threshold will be treated as invalid
+
+
 def analysis_from_probs(class_probs: Dict[str, float]) -> Dict[str, Any]:
     """
     Convert class probabilities like {"chest_strong": 0.7, "chest_weak": 0.2, ...}
-    into the structured analysis used by the frontend, with custom scoring:
-      - Any muscle predicted as STRONG gets a high score (>= 8.5)
-      - If all 5 muscles are strong -> overall score = 10
-      - If 4/5, 3/5, 2/5, 1/5 are strong -> boost overall score
-      - If 4 or more muscles are weak (<=5) -> clamp overall score to <= 5
+    into the structured analysis used by the frontend, with custom scoring.
     """
     MUSCLE_LABELS = {
         "chest": ("chest_strong", "chest_weak"),
@@ -149,16 +175,13 @@ def analysis_from_probs(class_probs: Dict[str, float]) -> Dict[str, Any]:
         p_strong = class_probs.get(strong_label, 0.0)
         p_weak = class_probs.get(weak_label, 0.0)
 
-        # Decide strong vs weak based on which prob is larger
         if p_strong >= p_weak:
-            # Marked as STRONG: give high base score 8.5–10
             base_score = 8.5 + 1.5 * (p_strong - p_weak)  # 8.5..10
             base_score = min(10.0, base_score)
             strengths = f"{muscle.capitalize()} looks relatively well-developed."
             weaknesses = f"Focus on fine-tuning {muscle} size and symmetry."
             symmetry = f"{muscle.capitalize()} appears balanced overall."
         else:
-            # Marked as WEAK: give lower base score 5..1
             base_score = 5.0 - 4.0 * (p_weak - p_strong)  # 5..1
             base_score = max(1.0, base_score)
             strengths = f"{muscle.capitalize()} has room to grow."
@@ -185,32 +208,23 @@ def analysis_from_probs(class_probs: Dict[str, float]) -> Dict[str, Any]:
     num_strong = len(strong_muscles)
     num_weak = len(weak_muscles)
 
-    # --- Overall score logic ---
     overall_score = mean_score
 
-    # If ALL muscles strong -> perfect 10
     if num_strong == num_muscles:
         overall_score = 10.0
-    # 4/5 strong -> high 9+
     elif num_strong == num_muscles - 1:
         overall_score = max(mean_score, 9.0)
-    # 3/5 strong -> around 8+
     elif num_strong == num_muscles - 2:
         overall_score = max(mean_score, 8.0)
-    # 2 or more strong -> at least 7
     elif num_strong >= 2:
         overall_score = max(mean_score, 7.0)
-    # 1 strong -> at least 6
     elif num_strong == 1:
         overall_score = max(mean_score, 6.0)
 
-    # If 4 or more muscles weak, cap score at <= 5
     if num_weak >= 4:
         overall_score = min(overall_score, 5.0)
 
     overall_score = round(overall_score, 1)
-
-    # --- Summary text ---
     pct_strong = int(round(100.0 * num_strong / num_muscles))
 
     if num_strong == 0:
@@ -233,7 +247,6 @@ def analysis_from_probs(class_probs: Dict[str, float]) -> Dict[str, Any]:
             f"Weaker focus areas: {weak_list}."
         )
 
-    # Posture notes still depend mostly on abs/back being weak
     if "back" in weak_muscles or "abs" in weak_muscles:
         posture_notes = (
             "Posture may benefit from stronger core and back. "
@@ -253,6 +266,84 @@ def analysis_from_probs(class_probs: Dict[str, float]) -> Dict[str, Any]:
         },
         "postureNotes": posture_notes,
         "muscleAnalysis": muscle_analysis,
+    }
+
+# ---------- Experience / equipment helpers ----------
+
+def get_equipment_mode(prefs: Dict[str, Any]) -> str:
+    """
+    Normalize equipment from prefs into: 'gym' | 'home' | 'minimal'
+    """
+    raw = str(prefs.get("equipment", "gym")).lower()
+    if "minimal" in raw:
+        return "minimal"
+    if "home" in raw:
+        return "home"
+    return "gym"
+
+
+def sets_for_experience(base_sets: int, experience: str) -> str:
+    """
+    Adjust sets based on training experience.
+      - beginner: slightly fewer sets
+      - intermediate: base
+      - advanced: one extra set
+    """
+    exp = (experience or "").lower()
+    if "beginner" in exp:
+        s = max(2, base_sets - 1)
+    elif "advanced" in exp:
+        s = base_sets + 1
+    else:  # intermediate / default
+        s = base_sets
+    return str(s)
+
+# ---------- GYM.csv recommendation helper ----------
+
+def gym_recommendations_from_prefs(prefs: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Use the models trained on GYM.csv to recommend:
+      - Exercise Schedule
+      - Meal Plan label/type
+    """
+    if EXERCISE_MODEL is None or MEAL_MODEL is None:
+        return {
+            "exerciseSchedule": None,
+            "mealPlanLabel": None,
+        }
+
+    gender = prefs.get("gender", "Male")
+    goal_raw = prefs.get("goal", "muscle gain")
+    bmi_cat = prefs.get("bmiCategory", "Normal")
+
+    goal_map = {
+        "fat loss": "Weight Loss",
+        "weight loss": "Weight Loss",
+        "muscle gain": "Muscle Gain",
+        "recomposition": "Recomposition",
+        "maintain": "Maintain",
+    }
+    goal = goal_map.get(str(goal_raw).lower(), str(goal_raw))
+
+    row = {
+        "Gender": str(gender).title(),
+        "Goal": goal,
+        "BMI Category": str(bmi_cat),
+    }
+
+    df = pd.DataFrame([row])
+
+    for col in GYM_FEATURE_COLS:
+        if col not in df.columns:
+            df[col] = None
+    df = df[GYM_FEATURE_COLS]
+
+    exercise_schedule = str(EXERCISE_MODEL.predict(df)[0])
+    meal_plan_label = str(MEAL_MODEL.predict(df)[0])
+
+    return {
+        "exerciseSchedule": exercise_schedule,
+        "mealPlanLabel": meal_plan_label,
     }
 
 # -------------- CSV-based rule selection helpers --------------
@@ -292,12 +383,13 @@ def _select_rule_for_muscle(
 
     goal = prefs.get("goal", "recomposition").lower()
     experience = prefs.get("experience", "beginner").lower()
-    equipment = prefs.get("equipment", "gym").lower()
+    equipment_mode = get_equipment_mode(prefs)  # gym | home | minimal
+    equipment_for_rules = "home" if equipment_mode == "minimal" else equipment_mode
     time_slot = map_time_slot(prefs.get("time", "30-45 min"))
 
     print(f"[_select_rule_for_muscle] muscle={muscle_name}, "
           f"score={muscle_score}, strength_level={strength_level}, "
-          f"goal={goal}, experience={experience}, equipment={equipment}, "
+          f"goal={goal}, experience={experience}, equipment={equipment_for_rules}, "
           f"time_slot={time_slot}, overall_score={overall_score}")
 
     def matches_full(row):
@@ -306,7 +398,7 @@ def _select_rule_for_muscle(
             and row["strength_level"] == strength_level
             and row["goal"] == goal
             and row["experience"] == experience
-            and row["equipment"] == equipment
+            and row["equipment"] == equipment_for_rules
             and row["time_slot"] == time_slot
             and row["overall_min_score"] <= overall_score <= row["overall_max_score"]
         )
@@ -323,7 +415,7 @@ def _select_rule_for_muscle(
             and row["strength_level"] == strength_level
             and row["goal"] == goal
             and row["experience"] == experience
-            and row["equipment"] == equipment
+            and row["equipment"] == equipment_for_rules
             and row["overall_min_score"] <= overall_score <= row["overall_max_score"]
         )
 
@@ -338,7 +430,7 @@ def _select_rule_for_muscle(
             row["muscle_group"] == muscle_name
             and row["goal"] == goal
             and row["experience"] == experience
-            and row["equipment"] == equipment
+            and row["equipment"] == equipment_for_rules
         )
 
     candidates = [r for r in PLAN_RULES if matches_loose(r)]
@@ -347,7 +439,6 @@ def _select_rule_for_muscle(
         print(f"  -> matched LOOSE rule id={chosen['id']} for {muscle_name}")
         return chosen
 
-    # final fallback: any rule with this muscle, or very first row
     for r in PLAN_RULES:
         if r["muscle_group"] == muscle_name:
             print(f"  -> fallback rule (same muscle) id={r['id']} for {muscle_name}")
@@ -395,40 +486,123 @@ def select_rules_for_all_weak(analysis: Dict[str, Any], prefs: Dict[str, Any]) -
           ", ".join([r["muscle_group"] for r in rules]))
     return rules
 
+# ---------- Equipment-based base exercises (gym vs home vs minimal) ----------
+
+# (name, base_sets, reps, rest)
+BASE_EXERCISES = {
+    "gym": {
+        "chest": [
+            ("Barbell Bench Press", 3, "6–10", "90s"),
+            ("Incline Dumbbell Press", 3, "8–12", "75s"),
+            ("Cable Fly", 3, "12–15", "60s"),
+            ("Chest Press Machine", 3, "10–12", "75s"),
+        ],
+        "back": [
+            ("Lat Pulldown", 3, "8–12", "75s"),
+            ("Seated Row", 3, "10–12", "75s"),
+            ("Chest-Supported Row", 3, "8–12", "75s"),
+            ("Straight-Arm Pulldown", 3, "12–15", "60s"),
+        ],
+        "arms": [
+            ("Barbell Curl", 3, "8–12", "60s"),
+            ("Dumbbell Hammer Curl", 3, "10–12", "60s"),
+            ("Triceps Pushdown", 3, "10–12", "60s"),
+            ("Overhead Triceps Extension", 3, "10–12", "60s"),
+        ],
+        "legs": [
+            ("Back Squat", 3, "6–10", "90s"),
+            ("Leg Press", 3, "10–12", "75s"),
+            ("Romanian Deadlift", 3, "8–12", "90s"),
+            ("Leg Curl Machine", 3, "10–15", "75s"),
+        ],
+        "abs": [
+            ("Cable Crunch", 3, "12–15", "45s"),
+            ("Hanging Knee Raise", 3, "10–15", "45s"),
+            ("Plank", 3, "30–45s", "45s"),
+            ("Russian Twist", 3, "16–20", "45s"),
+        ],
+    },
+    "home": {
+        "chest": [
+            ("Push-Up", 3, "max-2", "60s"),
+            ("Incline Push-Up (on chair)", 3, "10–15", "60s"),
+            ("Decline Push-Up", 3, "8–12", "60s"),
+            ("Wide-Arm Push-Up", 3, "10–15", "60s"),
+        ],
+        "back": [
+            ("Back Extensions (floor or bench)", 3, "12–15", "60s"),
+            ("Doorframe or Inverted Row (if safe)", 3, "8–12", "60s"),
+            ("Superman Hold", 3, "20–30s", "45s"),
+            ("Banded Row (if resistance band)", 3, "12–15", "60s"),
+        ],
+        "arms": [
+            ("Diamond Push-Up", 3, "8–12", "60s"),
+            ("Bench/Chair Dips", 3, "10–15", "60s"),
+            ("Banded Curl (or water bottle curl)", 3, "12–15", "60s"),
+            ("Overhead Triceps Extension (band/dumbbell)", 3, "12–15", "60s"),
+        ],
+        "legs": [
+            ("Bodyweight Squat", 3, "12–20", "60s"),
+            ("Reverse Lunge", 3, "10–12/leg", "60s"),
+            ("Glute Bridge", 3, "12–15", "60s"),
+            ("Wall Sit", 3, "30–45s", "45s"),
+        ],
+        "abs": [
+            ("Crunch", 3, "15–20", "45s"),
+            ("Plank", 3, "30–45s", "45s"),
+            ("Dead Bug", 3, "10–12/side", "45s"),
+            ("Bicycle Crunch", 3, "16–20", "45s"),
+        ],
+    },
+    "minimal": {
+        "chest": [
+            ("Dumbbell Floor Press", 3, "8–12", "75s"),
+            ("Dumbbell Fly (on floor or bench)", 3, "10–12", "60s"),
+            ("Push-Up", 3, "max-2", "60s"),
+            ("Incline Push-Up (on chair)", 3, "10–15", "60s"),
+        ],
+        "back": [
+            ("Single-Arm Dumbbell Row (on bench/chair)", 3, "8–12/side", "75s"),
+            ("Banded Row", 3, "12–15", "60s"),
+            ("Back Extensions (floor)", 3, "12–15", "60s"),
+            ("Superman Hold", 3, "20–30s", "45s"),
+        ],
+        "arms": [
+            ("Dumbbell Curl", 3, "10–12", "60s"),
+            ("Hammer Curl", 3, "10–12", "60s"),
+            ("Overhead Triceps Extension (dumbbell)", 3, "10–12", "60s"),
+            ("Bench/Chair Dips", 3, "10–15", "60s"),
+        ],
+        "legs": [
+            ("Goblet Squat (dumbbell)", 3, "8–12", "75s"),
+            ("Reverse Lunge (bodyweight or dumbbell)", 3, "10–12/leg", "60s"),
+            ("Romanian Deadlift (dumbbells)", 3, "8–12", "75s"),
+            ("Glute Bridge", 3, "12–15", "60s"),
+        ],
+        "abs": [
+            ("Crunch", 3, "15–20", "45s"),
+            ("Plank", 3, "30–45s", "45s"),
+            ("Russian Twist (with or without weight)", 3, "16–20", "45s"),
+            ("Leg Raise (lying)", 3, "10–15", "45s"),
+        ],
+    },
+}
 
 def workout_plan_from_rules(
     rules: List[Dict[str, Any]],
     analysis: Dict[str, Any],
+    prefs: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
     Build a multi-day workout plan: one day per weak muscle.
-    Each day uses the CSV rule as the main focus exercise +
-    some generic accessory work for that muscle group.
     """
     muscle_analysis = analysis["muscleAnalysis"]
 
-    base_exercises = {
-        "chest": [
-            ("Incline Dumbbell Press", "3", "8–12", "75s"),
-            ("Cable Fly", "3", "12–15", "60s"),
-        ],
-        "back": [
-            ("Lat Pulldown", "3", "8–12", "75s"),
-            ("Seated Row", "3", "10–12", "75s"),
-        ],
-        "arms": [
-            ("Barbell Curl", "3", "8–12", "60s"),
-            ("Triceps Pushdown", "3", "10–12", "60s"),
-        ],
-        "legs": [
-            ("Back Squat", "3", "6–10", "90s"),
-            ("Leg Press", "3", "10–12", "75s"),
-        ],
-        "abs": [
-            ("Cable Crunch", "3", "12–15", "45s"),
-            ("Plank", "3", "30–45s", "45s"),
-        ],
-    }
+    equipment_mode = get_equipment_mode(prefs)
+    if equipment_mode not in BASE_EXERCISES:
+        equipment_mode = "gym"
+
+    experience = str(prefs.get("experience", "beginner"))
 
     days = []
     for idx, rule in enumerate(rules):
@@ -436,18 +610,26 @@ def workout_plan_from_rules(
         muscle_score = muscle_analysis.get(muscle, {}).get("score", 0.0)
         day_name = f"Day {idx + 1}"
 
-        extra_ex = base_exercises.get(muscle, [])
+        muscle_exercises = BASE_EXERCISES.get(equipment_mode, {}).get(muscle, [])
+        accessory_exercises = muscle_exercises[:4]
+
+        main_sets = sets_for_experience(3, experience)
         exercises = [
             {
                 "name": rule["workout_title"],
-                "sets": "3",
+                "sets": main_sets,
                 "reps": "8–12",
                 "rest": "60–90s",
             },
-        ] + [
-            {"name": n, "sets": s, "reps": r, "rest": rest}
-            for (n, s, r, rest) in extra_ex
         ]
+
+        for (n, base_sets, r, rest) in accessory_exercises:
+            exercises.append({
+                "name": n,
+                "sets": sets_for_experience(base_sets, experience),
+                "reps": r,
+                "rest": rest,
+            })
 
         days.append({
             "dayOfWeek": day_name,
@@ -465,9 +647,9 @@ def workout_plan_from_rules(
     step_by_step = [
         "Train 3–4 days per week following the days listed.",
         "Always start with the warm-up before your first exercise.",
-        "Use a weight where the last 2 reps of each set feel challenging but doable.",
+        "Use a weight or difficulty where the last 2 reps of each set feel challenging but doable.",
         "Rest 60–90 seconds between sets unless otherwise specified.",
-        "Increase the weight slightly once you can hit the top of the rep range with good form.",
+        "Increase the difficulty (weight, reps, or tempo) once you can hit the top of the rep range with good form.",
         "Finish with the cooldown to help recovery and mobility.",
     ]
 
@@ -476,66 +658,161 @@ def workout_plan_from_rules(
         "focusedMuscles": [r["muscle_group"] for r in rules],
         "rulesUsed": [r["id"] for r in rules],
         "stepByStep": step_by_step,
+        "equipment": equipment_mode,
+        "experience": experience,
     }
 
+# ---------- Smarter meal guide (goal + BMI + gender + activity level) ----------
 
 def meal_guide_from_rule(rule: Dict[str, Any], prefs: Dict[str, Any]) -> Dict[str, Any]:
-    """Use CSV meal_title/meal_description + simple macro calculation."""
-    goal = prefs.get("goal", "recomposition").lower()
+    """
+    Use CSV meal_title/meal_description + macro calculation,
+    adapted by goal, BMI, gender, activity level.
+    """
+    goal_raw = prefs.get("goal", "recomposition")
+    goal = str(goal_raw).lower()
     weight = float(prefs.get("weight", 65))
+    bmi_cat = str(prefs.get("bmiCategory", "Normal")).lower()
+    gender = str(prefs.get("gender", "male")).lower()
+    activity_raw = str(prefs.get("activityLevel", "moderate")).lower()
 
     if goal == "fat loss":
-        calories = int(weight * 28)
+        base_calories = weight * 26
         protein = int(weight * 2.0)
     elif goal == "muscle gain":
-        calories = int(weight * 36)
+        base_calories = weight * 36
         protein = int(weight * 2.2)
     else:
-        calories = int(weight * 32)
+        base_calories = weight * 30
         protein = int(weight * 2.0)
 
-    carbs = int(calories * 0.4 / 4)
+    if "sedentary" in activity_raw:
+        activity_factor = 1.2
+    elif "light" in activity_raw:
+        activity_factor = 1.375
+    elif "moderate" in activity_raw:
+        activity_factor = 1.55
+    elif "active" in activity_raw:
+        activity_factor = 1.725
+    elif "very" in activity_raw:
+        activity_factor = 1.9
+    else:
+        activity_factor = 1.4
+
+    gender_factor = 0.9 if gender == "female" else 1.0
+
+    calories = int(base_calories * activity_factor * gender_factor)
+
+    carbs = int(calories * 0.40 / 4)
     fats = int(calories * 0.25 / 9)
 
     m_title = rule["meal_title"]
     m_desc = rule["meal_description"]
 
+    if goal == "fat loss":
+        breakfast_ingredients = [
+            "Oats with whey protein OR plain Greek yogurt",
+            "1 boiled egg + extra egg whites",
+            "Fruit (berries preferred)",
+        ]
+        lunch_ingredients = [
+            "Grilled chicken or white fish",
+            "Small portion of rice, quinoa or potatoes",
+            "Big serving of mixed vegetables or salad",
+        ]
+        dinner_ingredients = [
+            "Lean protein (chicken, turkey, tofu)",
+            "Half portion of carbs compared to lunch",
+            "Plenty of green vegetables",
+        ]
+        snacks_ingredients = [
+            "Greek yogurt or cottage cheese (low-fat)",
+            "Carrot/cucumber sticks",
+            "A small handful of nuts",
+        ]
+        lunch_notes = "Lower-calorie meal with lean protein, high veggies and controlled carbs."
+        dinner_notes = "Light evening meal, prioritizing protein and veg over carbs."
+
+    elif goal == "muscle gain":
+        breakfast_ingredients = [
+            "Oats with whey protein and peanut butter",
+            "2 whole eggs + egg whites",
+            "Fruit (banana or berries)",
+        ]
+        lunch_ingredients = [
+            "Grilled chicken, beef or fish",
+            "Generous portion of rice, pasta or potatoes",
+            "Mixed vegetables or salad",
+        ]
+        dinner_ingredients = [
+            "Lean protein (chicken, beef, tofu)",
+            "Moderate portion of carbs (rice, pasta, potatoes)",
+            "Vegetables or salad",
+        ]
+        snacks_ingredients = [
+            "Protein shake with fruit",
+            "Greek yogurt with granola",
+            "Nuts, trail mix or rice cakes with peanut butter",
+        ]
+        lunch_notes = "Higher-calorie meal with good carbs and lean protein to support growth."
+        dinner_notes = "Evening meal with enough carbs to recover but not overly heavy."
+
+    else:
+        breakfast_ingredients = [
+            "Oats with whey protein OR 2 eggs + egg whites",
+            "Fruit (banana or berries)",
+        ]
+        lunch_ingredients = [
+            "Grilled chicken or fish",
+            "Moderate portion of rice, pasta or potatoes",
+            "Mixed vegetables or salad",
+        ]
+        dinner_ingredients = [
+            "Lean protein (chicken, fish, tofu)",
+            "Smaller portion of carbs",
+            "Plenty of vegetables",
+        ]
+        snacks_ingredients = [
+            "Greek yogurt or cottage cheese",
+            "Protein shake",
+            "Fruit or a small handful of nuts",
+        ]
+        lunch_notes = "Balanced meal with lean protein, moderate carbs and vegetables."
+        dinner_notes = "Slightly lighter than lunch to avoid overeating late."
+
+    if "underweight" in bmi_cat:
+        snacks_ingredients.append("Extra spoon of peanut butter or nut butter")
+        snacks_ingredients.append("Additional glass of milk or soy milk")
+
+    if "overweight" in bmi_cat or "obese" in bmi_cat:
+        snacks_ingredients = [
+            "Greek yogurt (low-fat) or cottage cheese",
+            "Fresh fruit (apple, berries, orange)",
+            "Raw veggies (carrot, cucumber, bell pepper)",
+            "Herbal tea or zero-calorie drink if craving something",
+        ]
+
     meals = [
         {
             "name": "Breakfast",
             "notes": f"{m_title} – {m_desc}",
-            "ingredients": [
-                "Oats with whey protein",
-                "1–2 whole eggs + egg whites",
-                "Fruit (banana or berries)",
-            ],
+            "ingredients": breakfast_ingredients,
         },
         {
             "name": "Lunch",
-            "notes": "Balanced meal with lean protein, carbs and vegetables.",
-            "ingredients": [
-                "Grilled chicken or fish",
-                "Rice, pasta or potatoes",
-                "Mixed vegetables or salad",
-            ],
+            "notes": lunch_notes,
+            "ingredients": lunch_ingredients,
         },
         {
             "name": "Dinner",
-            "notes": "Similar to lunch, slightly lighter on carbs for fat loss goals.",
-            "ingredients": [
-                "Lean protein (chicken, beef, tofu)",
-                "Smaller carb portion",
-                "Plenty of vegetables",
-            ],
+            "notes": dinner_notes,
+            "ingredients": dinner_ingredients,
         },
         {
             "name": "Snacks",
-            "notes": "Keep snacks protein-focused to support muscle recovery.",
-            "ingredients": [
-                "Greek yogurt or cottage cheese",
-                "Protein shake",
-                "Nuts or rice cakes",
-            ],
+            "notes": "Adjust number of snacks to hit your calorie target. "
+                     "Keep them mostly protein-focused.",
+            "ingredients": snacks_ingredients,
         },
     ]
 
@@ -549,6 +826,8 @@ def meal_guide_from_rule(rule: Dict[str, Any], prefs: Dict[str, Any]) -> Dict[st
         "meals": meals,
         "planName": m_title,
         "planDescription": m_desc,
+        "activityLevel": activity_raw,
+        "gender": gender,
     }
 
 # ---------------- API ----------------
@@ -571,45 +850,94 @@ async def analyze_physique(
     preds_back = run_model_on_image(back_img)
     preds_legs = run_model_on_image(legs_img)
 
-    combined_probs = combine_predictions([preds_front, preds_back, preds_legs])
-    analysis = analysis_from_probs(combined_probs)
-
-    # NEW: select rules for all weak muscles
-    rules = select_rules_for_all_weak(analysis, prefs)
-    workout_plan = workout_plan_from_rules(rules, analysis)
-
-    # for meal guide, just use the first rule (primary focus)
-    primary_rule = rules[0]
-    meal_guide = meal_guide_from_rule(primary_rule, prefs)
-
+    # Helper to get top class + confidence
     def top_class(preds: Dict[str, float]):
         if not preds:
             return ("none", 0.0)
-        name = max(preds.items(), key=lambda kv: kv[1])[0]
-        return name, preds[name]
+        name, p = max(preds.items(), key=lambda kv: kv[1])
+        return name, p
 
     f_top, f_conf = top_class(preds_front)
     b_top, b_conf = top_class(preds_back)
     l_top, l_conf = top_class(preds_legs)
+
+    # 1) reject obvious NON-physique images based on per-image confidence
+    if not (
+        is_physique_like(preds_front)
+        and is_physique_like(preds_back)
+        and is_physique_like(preds_legs)
+    ):
+        return {
+            "validImages": False,
+            "message": (
+                f"The Photos is not a muscle\n"
+                f"The uploaded images do not look like clear physique photos "
+                f"with good lighting."
+            ),
+            "inference": {
+                "front": preds_front,
+                "back": preds_back,
+                "legs": preds_legs,
+            },
+        }
+
+    # 2) extra rule: average of the 3 top confidences must be > MIN_AVG_CONF
+    MIN_AVG_CONF = 0.8  # you can tweak this (0.5, 0.55, etc.)
+    avg_conf = (f_conf + b_conf + l_conf) / 3.0
+
+    if avg_conf <= MIN_AVG_CONF:
+        return {
+            "validImages": False,
+            "message": (
+                f"The Photos is not a muscle"
+                "clear or consistent physique photos. Please upload sharper, "
+                "well-lit front, back and leg photos."
+            ),
+            "inference": {
+                "front": preds_front,
+                "back": preds_back,
+                "legs": preds_legs,
+                "avg_confidence": avg_conf,
+            },
+        }
+
+    # 3) normal analysis pipeline (only if passes all confidence checks)
+    combined_probs = combine_predictions([preds_front, preds_back, preds_legs])
+    analysis = analysis_from_probs(combined_probs)
+
+    overall_score = float(analysis["physiqueRating"]["overallScore"])
+
+    rules = select_rules_for_all_weak(analysis, prefs)
+    workout_plan = workout_plan_from_rules(rules, analysis, prefs)
+
+    primary_rule = rules[0]
+    meal_guide = meal_guide_from_rule(primary_rule, prefs)
+
+    gym_recos = gym_recommendations_from_prefs(prefs)
+    workout_plan["recommendedSchedule"] = gym_recos["exerciseSchedule"]
+    meal_guide["gymMealPlanLabel"] = gym_recos["mealPlanLabel"]
+
     c_top, c_conf = top_class(combined_probs)
-    overall_score = analysis["physiqueRating"]["overallScore"]
 
     print("========== /analyze request ==========")
     print(f"Front   top: {f_top:15s} conf={f_conf:.3f}")
     print(f"Back    top: {b_top:15s} conf={b_conf:.3f}")
     print(f"Legs    top: {l_top:15s} conf={l_conf:.3f}")
-    # removed COMBINED top line as requested
+    print(f"Avg confidence of 3 images: {avg_conf:.3f}")
     print(f"Overall physique score (1–10): {overall_score}")
     print(f"Matched rule ids={[r['id'] for r in rules]} "
           f"muscles={[r['muscle_group'] for r in rules]}")
+    print("GYM recommendations:", gym_recos)
     print("======================================")
 
     return {
+        "validImages": True,
         "analysis": analysis,
         "plans": {
             "workoutPlan": workout_plan,
             "mealGuide": meal_guide,
         },
+        "gymRecommendations": gym_recos,
         "inference": {
             "front": preds_front,
             "back": preds_back,
@@ -617,6 +945,7 @@ async def analyze_physique(
             "combined": combined_probs,
             "combined_top_class": c_top,
             "combined_confidence": c_conf,
+            "avg_confidence": avg_conf,
         },
     }
 

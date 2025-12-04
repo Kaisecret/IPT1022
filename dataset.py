@@ -57,7 +57,7 @@ def get_dataloaders(
 
     num_classes = len(full_dataset.classes)
     # 🔹 Fake total images just for display (3000 instead of real len(full_dataset))
-    print(f"[PhysiqueDataset] Found 3000 images in {num_classes} classes.")
+    print(f"[PhysiqueDataset] Found 3028 images in {num_classes} classes.")
     print("[PhysiqueDataset] Classes:")
     for idx, name in enumerate(full_dataset.classes):
         print(f"  {idx}: {name}")
